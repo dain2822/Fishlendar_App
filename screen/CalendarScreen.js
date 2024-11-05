@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Button, Modal, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
-export default function CalendarScreen({ route }) {
+export default function CalendarScreen({ route, navigation }) {
     const [selectedDates, setSelectedDates] = useState(JSON.parse(route.params.values));
     const [selectedDay, setSelectedDay] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    useEffect(() => {
+        // 헤더 버튼 추가
+        navigation.setOptions({
+            headerRight: () => (
+                <Button
+                    onPress={() => setIsModalVisible(true)} // 모달 표시를 위한 상태 변경
+                    title="Select Options"
+                    color="#fff"
+                />
+            ),
+        });
+    }, [navigation]);
 
     // 날짜 선택 핸들러
     const onDayPress = (day) => {
@@ -32,6 +46,8 @@ export default function CalendarScreen({ route }) {
         return date >= new Date(item.startDate) && date <= new Date(item.endDate);
     });
 
+            
+
     return (
         <View style={styles.container}>
             <Calendar
@@ -39,6 +55,47 @@ export default function CalendarScreen({ route }) {
                 markingType='multi-dot' // 여러 개의 점을 표시할 수 있는 타입
                 onDayPress={onDayPress}
             />
+
+            {/* 모달 구현 */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={() => {
+                    setIsModalVisible(false);
+                }}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Select an Option</Text>
+                        <TouchableOpacity
+                            style={styles.optionButton}
+                            onPress={() => {
+                                console.log("Option 1 selected");
+                                setIsModalVisible(false); // 모달 닫기
+                            }}
+                        >
+                            <Text style={styles.optionText}>Option 1</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.optionButton}
+                            onPress={() => {
+                                console.log("Option 2 selected");
+                                setIsModalVisible(false); // 모달 닫기
+                            }}
+                        >
+                            <Text style={styles.optionText}>Option 2</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.optionButton}
+                            onPress={() => setIsModalVisible(false)}
+                        >
+                            <Text style={styles.optionText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+            
             <ScrollView style={styles.fishInfoContainer}>
                 {selectedFishInfo.length > 0 ? (
                     selectedFishInfo.map(fish => (
@@ -59,4 +116,35 @@ const styles = StyleSheet.create({
     fishInfoContainer: { padding: 10, backgroundColor: '#f9f9f9' },
     fishInfoText: { fontSize: 16, marginVertical: 5, color: 'black' },
     noFishInfoText: { fontSize: 16, color: 'gray', textAlign: 'center', marginVertical: 10 },
+    title: {
+        fontSize: 24,
+        marginBottom: 20,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: 300,
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        marginBottom: 20,
+    },
+    optionButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        marginVertical: 5,
+        backgroundColor: '#e6f2ff',
+        borderRadius: 5,
+    },
+    optionText: {
+        fontSize: 16,
+    },
 });

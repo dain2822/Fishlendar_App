@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
-import Checkbox from 'expo-checkbox'; // expo-checkbox 사용
-import { useNavigation } from '@react-navigation/native'; // 네비게이션 훅 가져오기
+import Checkbox from 'expo-checkbox';
+import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
-  const [selectedFish, setSelectedFish] = useState(null); // 선택된 어종을 저장하는 상태
-  const navigation = useNavigation(); // 네비게이션 훅 사용
+export default function CheckBoxScreen() {
+  const [selectedFish, setSelectedFish] = useState([]); // 여러 어종을 선택할 수 있도록 배열로 설정
+  const navigation = useNavigation();
 
   const fishData = [
     { name: '대구', startDate: '2024-01-16', endDate: '2024-02-15' },
@@ -43,23 +43,18 @@ export default function App() {
   ];
 
   const toggleDateSelection = (fish) => {
-    // 현재 선택된 어종이 없거나 다를 경우 선택
-    if (selectedFish && selectedFish.name === fish.name) {
-      setSelectedFish(null); // 같은 어종이면 선택 해제
-    } else {
-      setSelectedFish(fish); // 새로운 어종 선택
-    }
-    console.log(fish.startDate, fish.endDate); // 선택한 물고기의 날짜 범위를 출력
+    setSelectedFish(prevState => {
+      const isSelected = prevState.some(selected => selected.name === fish.name);
+      if (isSelected) {
+        return prevState.filter(selected => selected.name !== fish.name);
+      } else {
+        return [...prevState, fish];
+      }
+    });
   };
 
   const handleConfirm = () => {
-    // selectedDates 정보를 Calendar 페이지로 넘기기
-    if (selectedFish) {
-      navigation.navigate('Calendar', { values: JSON.stringify([selectedFish]) });
-    } else {
-      // 선택된 어종이 없을 경우 알림
-      alert('Please select a fish.');
-    }
+    navigation.navigate('Calendar', { values: JSON.stringify(selectedFish) });
   };
 
   return (
@@ -68,55 +63,22 @@ export default function App() {
       {fishData.map((fish) => (
         <View key={fish.name} style={styles.checkboxContainer}>
           <Checkbox
-            value={selectedFish && selectedFish.name === fish.name}
+            value={selectedFish.some(selected => selected.name === fish.name)}
             onValueChange={() => toggleDateSelection(fish)}
             style={styles.checkbox}
           />
           <Text style={styles.label}>{fish.name}</Text>
-          {selectedFish && selectedFish.name === fish.name && (
-            <Text style={styles.dateRange}>
-              {`Start Date: ${fish.startDate}, End Date: ${fish.endDate}`}
-            </Text>
-          )}
         </View>
       ))}
-      <View style={styles.buttonContainer}>
-        <Button title="Confirm" onPress={handleConfirm} />
-        {/* 버튼 누르면 {handleConfirm}함수 실행되서 Calendar화면으로 넘어감 */}
-      </View>
+      <Button title="Confirm" onPress={handleConfirm} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 40, // 추가된 여백으로 버튼이 잘리지 않도록 함
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  label: {
-    margin: 8,
-  },
-  checkbox: {
-    marginRight: 8,
-  },
-  dateRange: {
-    marginLeft: 8,
-    fontSize: 12,
-    color: 'gray',
-  },
-  buttonContainer: {
-    marginTop: 20,
-    marginBottom: 20, // 버튼이 보이도록 추가된 여백
-    alignItems: 'center',
-  },
+  container: { flexGrow: 1, padding: 20 },
+  title: { fontSize: 24, marginBottom: 20 },
+  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  checkbox: { marginRight: 8 },
+  label: { fontSize: 16 },
 });

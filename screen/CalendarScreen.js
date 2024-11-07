@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { StyleSheet, Text, View, ScrollView, Modal, TextInput, Button, TouchableOpacity, Alert } from 'react-native';
-=======
-import { StyleSheet, Text, View, ScrollView, Button, Modal, TouchableOpacity } from 'react-native';
->>>>>>> 2227eb28b29f41fc78b84101d193c60402d32a2c
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons'; // 아이콘 사용을 위해 필요
 
@@ -11,7 +7,6 @@ export default function CalendarScreen({ route, navigation }) {
     const [selectedDates, setSelectedDates] = useState(JSON.parse(route.params.values));
     const [selectedDay, setSelectedDay] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-<<<<<<< HEAD
     const [inputText, setInputText] = useState('');
     const [events, setEvents] = useState([]);
     const [endDate, setEndDate] = useState('');
@@ -24,18 +19,6 @@ export default function CalendarScreen({ route, navigation }) {
                 <TouchableOpacity onPress={() => setIsEventListVisible(true)}>
                     <Ionicons name="calendar-outline" size={24} color="black" />
                 </TouchableOpacity>
-=======
-
-    useEffect(() => {
-        // 헤더 버튼 추가
-        navigation.setOptions({
-            headerRight: () => (
-                <Button
-                    onPress={() => setIsModalVisible(true)} // 모달 표시를 위한 상태 변경
-                    title="Select Options"
-                    color="#fff"
-                />
->>>>>>> 2227eb28b29f41fc78b84101d193c60402d32a2c
             ),
         });
     }, [navigation]);
@@ -108,8 +91,6 @@ export default function CalendarScreen({ route, navigation }) {
         }
     });
 
-            
-
     return (
         <View style={styles.container}>
             <Calendar
@@ -117,7 +98,6 @@ export default function CalendarScreen({ route, navigation }) {
                 markingType='multi-dot'
                 onDayPress={onDayPress}
             />
-<<<<<<< HEAD
             <ScrollView style={styles.infoContainer}>
                 {events.length > 0 && (
                     <View>
@@ -127,58 +107,6 @@ export default function CalendarScreen({ route, navigation }) {
                             </Text>
                         ))}
                     </View>
-=======
-
-            {/* 모달 구현 */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isModalVisible}
-                onRequestClose={() => {
-                    setIsModalVisible(false);
-                }}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Select an Option</Text>
-                        <TouchableOpacity
-                            style={styles.optionButton}
-                            onPress={() => {
-                                console.log("Option 1 selected");
-                                setIsModalVisible(false); // 모달 닫기
-                            }}
-                        >
-                            <Text style={styles.optionText}>Option 1</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.optionButton}
-                            onPress={() => {
-                                console.log("Option 2 selected");
-                                setIsModalVisible(false); // 모달 닫기
-                            }}
-                        >
-                            <Text style={styles.optionText}>Option 2</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.optionButton}
-                            onPress={() => setIsModalVisible(false)}
-                        >
-                            <Text style={styles.optionText}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-            
-            <ScrollView style={styles.fishInfoContainer}>
-                {selectedFishInfo.length > 0 ? (
-                    selectedFishInfo.map(fish => (
-                        <Text key={fish.name} style={styles.fishInfoText}>
-                            {`금어기 어종: ${fish.name} | 시작: ${fish.startDate} ~ 종료: ${fish.endDate}`}
-                        </Text>
-                    ))
-                ) : (
-                    <Text style={styles.noFishInfoText}>선택한 날짜에 금어기 어종이 없습니다.</Text>
->>>>>>> 2227eb28b29f41fc78b84101d193c60402d32a2c
                 )}
             </ScrollView>
 
@@ -237,7 +165,6 @@ export default function CalendarScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'white' },
-<<<<<<< HEAD
     infoContainer: { padding: 10, backgroundColor: '#f9f9f9' },
     eventText: { fontSize: 16, marginVertical: 5, color: 'green' },
     modalContainer: {
@@ -251,25 +178,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#f5f5f5' // 더 밝은 배경색으로 설정
-=======
-    fishInfoContainer: { padding: 10, backgroundColor: '#f9f9f9' },
-    fishInfoText: { fontSize: 16, marginVertical: 5, color: 'black' },
-    noFishInfoText: { fontSize: 16, color: 'gray', textAlign: 'center', marginVertical: 10 },
-    title: {
-        fontSize: 24,
-        marginBottom: 20,
-    },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
->>>>>>> 2227eb28b29f41fc78b84101d193c60402d32a2c
     },
     modalContent: {
         width: 300,
         padding: 20,
-<<<<<<< HEAD
         backgroundColor: 'white',
         borderRadius: 10,
     },
@@ -291,24 +203,4 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 5,
     }
-=======
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    modalTitle: {
-        fontSize: 20,
-        marginBottom: 20,
-    },
-    optionButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        marginVertical: 5,
-        backgroundColor: '#e6f2ff',
-        borderRadius: 5,
-    },
-    optionText: {
-        fontSize: 16,
-    },
->>>>>>> 2227eb28b29f41fc78b84101d193c60402d32a2c
 });

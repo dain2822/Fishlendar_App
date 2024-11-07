@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Modal, TextInput, Button, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Modal, TextInput, Button, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons'; // 아이콘 사용을 위해 필요
 
@@ -10,6 +10,7 @@ export default function CalendarScreen({ route, navigation }) {
     const [inputText, setInputText] = useState('');
     const [events, setEvents] = useState([]);
     const [endDate, setEndDate] = useState('');
+    const [isSelectingEndDate, setIsSelectingEndDate] = useState(false);
     const [lastClicked, setLastClicked] = useState(null);
     const [isEventListVisible, setIsEventListVisible] = useState(false);
 
@@ -24,9 +25,9 @@ export default function CalendarScreen({ route, navigation }) {
     }, [navigation]);
 
     const onDayPress = (day) => {
+        setSelectedDay(day.dateString);
         const now = new Date().getTime();
         if (lastClicked && (now - lastClicked) < 300) {
-            setSelectedDay(day.dateString);
             setIsModalVisible(true);
         }
         setLastClicked(now);
@@ -44,6 +45,11 @@ export default function CalendarScreen({ route, navigation }) {
         } else {
             alert('모든 필드를 입력해주세요.');
         }
+    };
+
+    const handleEndDateSelect = (day) => {
+        setEndDate(day.dateString);
+        setIsSelectingEndDate(false);
     };
 
     const deleteEvent = (eventToDelete) => {
@@ -91,6 +97,19 @@ export default function CalendarScreen({ route, navigation }) {
         }
     });
 
+    const selectedFishInfo = selectedDates.filter(item => {
+        const date = new Date(selectedDay);
+        return date >= new Date(item.startDate) && date <= new Date(item.endDate);
+    });
+
+    const selectedEvents = events.filter(event => {
+        const eventStartDate = new Date(event.startDate);
+        const eventEndDate = new Date(event.endDate);
+        const selectedDate = new Date(selectedDay);
+
+        return selectedDate >= eventStartDate && selectedDate <= eventEndDate;
+    });
+
     return (
         <View style={styles.container}>
             <Calendar
@@ -99,20 +118,35 @@ export default function CalendarScreen({ route, navigation }) {
                 onDayPress={onDayPress}
             />
             <ScrollView style={styles.infoContainer}>
-                {events.length > 0 && (
+                {selectedFishInfo.length > 0 ? (
                     <View>
-                        {events.map((event, index) => (
-                            <Text key={index} style={styles.eventText}>
-                                {`일정: ${event.text} | 시작: ${event.startDate} ~ 종료: ${event.endDate}`}
+                        {selectedFishInfo.map((fish, index) => (
+                            <Text key={index} style={styles.fishInfoText}>
+                                {`금어기: ${fish.name} | 시작: ${fish.startDate} ~ 종료: ${fish.endDate}`}
                             </Text>
                         ))}
                     </View>
+                ) : (
+                    <Text style={styles.noEventText}>
+                        {selectedDay ? `선택한 날짜에는 금어기 정보가 없습니다.` : `날짜를 선택해주세요.`}
+                    </Text>
+                )}
+                {selectedEvents.length > 0 ? (
+                    selectedEvents.map((event, index) => (
+                        <Text key={index} style={styles.eventText}>
+                            {`일정: ${event.text} | 시작: ${event.startDate} ~ 종료: ${event.endDate}`}
+                        </Text>
+                    ))
+                ) : (
+                    <Text style={styles.noEventText}>
+                        {selectedDay ? `선택한 날짜에는 일정이 없습니다.` : `날짜를 선택해주세요.`}
+                    </Text>
                 )}
             </ScrollView>
 
             {/* 일정 추가 모달 */}
             <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-                <View style={styles.modalContainer}>
+                <KeyboardAvoidingView style={styles.modalContainer} behavior="padding">
                     <View style={styles.modalContent}>
                         <Text>일정 입력:</Text>
                         <TextInput
@@ -123,16 +157,19 @@ export default function CalendarScreen({ route, navigation }) {
                             autoCapitalize="none"
                             multiline={true}
                         />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="끝나는 날짜 (YYYY-MM-DD)"
-                            value={endDate}
-                            onChangeText={setEndDate}
-                            autoCapitalize="none"
-                        />
+                        <Button title="날짜 선택" onPress={() => setIsSelectingEndDate(true)} />
+                        {endDate ? <Text>선택한 종료 날짜: {endDate}</Text> : null}
                         <Button title="추가" onPress={addEvent} />
                         <Button title="취소" onPress={() => setIsModalVisible(false)} />
                     </View>
+                </KeyboardAvoidingView>
+            </Modal>
+
+            {/* 종료 날짜 선택용 모달 */}
+            <Modal visible={isSelectingEndDate} animationType="slide" transparent={false}>
+                <View style={styles.modalContainerBright}>
+                    <Calendar onDayPress={handleEndDateSelect} />
+                    <Button title="닫기" onPress={() => setIsSelectingEndDate(false)} />
                 </View>
             </Modal>
 
@@ -166,18 +203,20 @@ export default function CalendarScreen({ route, navigation }) {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: 'white' },
     infoContainer: { padding: 10, backgroundColor: '#f9f9f9' },
+    fishInfoText: { fontSize: 16, marginVertical: 5, color: 'blue' },
     eventText: { fontSize: 16, marginVertical: 5, color: 'green' },
+    noEventText: { fontSize: 16, color: 'gray', textAlign: 'center', marginVertical: 10 },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)' // 밝은 배경으로 변경
+        backgroundColor: 'rgba(255, 255, 255, 0.8)'
     },
     modalContainerBright: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5' // 더 밝은 배경색으로 설정
+        backgroundColor: '#f5f5f5'
     },
     modalContent: {
         width: 300,
@@ -189,12 +228,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginBottom: 20,
         textAlign: 'center'
-    },
-    noEventText: {
-        fontSize: 16,
-        color: 'gray',
-        textAlign: 'center',
-        marginVertical: 10,
     },
     input: {
         borderWidth: 1,
